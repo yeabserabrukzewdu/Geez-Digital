@@ -1,93 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { useLanguage } from '../contexts/LanguageContext';
 
-const Logo = () => (
-    <img 
+import React, { useState, useEffect } from 'react';
+import { navLinks } from '../constants';
+import Logo from './icons/Logo';
+
+const Header: React.FC = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentHash, setCurrentHash] = useState(window.location.hash || '#home');
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleHash = () => setCurrentHash(window.location.hash || '#home');
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('hashchange', handleHash);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('hashchange', handleHash);
+    };
+  }, []);
+
+  return (
+       <header className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 px-4 pt-4`}>
+      <div className={`container mx-auto max-w-6xl rounded-2xl transition-all duration-500 ${scrolled ? 'bg-black/60 backdrop-blur-xl border border-white/10 py-3 shadow-2xl' : 'bg-transparent py-6'}`}>
+        <div className="flex items-center justify-between px-6">
+          <a href="#home" className="flex items-center space-x-3 group">
+             <img 
     src="/geez-stars-logo.png"  // Update this path to match your file location
     alt="My Logo"
     width="48"
     height="48"
     style={{ objectFit: 'contain' }}  // Ensures it scales nicely without distortion
   />
-);
-
-
-const Header: React.FC = () => {
-    const [scrolled, setScrolled] = useState(false);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { language, setLanguage, t } = useLanguage();
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 10);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    const navLinks = [
-        { name: t('navServices'), href: '#services' },
-        { name: t('navPricing'), href: '#pricing' },
-        { name: t('navPortfolio'), href: '#portfolio' },
-        { name: t('navTeam'), href: '#team' },
-        { name: t('navContact'), href: '#contact' },
-    ];
-
-    const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-        e.preventDefault();
-        document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-        setIsMenuOpen(false);
-    };
-
-    const toggleLanguage = () => {
-        setLanguage(language === 'en' ? 'am' : 'en');
-    };
-
-    return (
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0c0c0c]/80 backdrop-blur-sm shadow-lg' : 'bg-transparent'}`}>
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-20">
-                    <a href="#home" onClick={(e) => handleLinkClick(e, '#home')} className="flex items-center space-x-2">
-                        <Logo />
-                        <span className="text-xl font-bold text-white tracking-wider">GEEZ DIGITALS</span>
-                    </a>
-
-                    <div className="flex items-center">
-                        <nav className="hidden md:flex items-center space-x-8">
-                            {navLinks.map((link) => (
-                                <a key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-gray-300 hover:text-white transition-colors duration-300 font-medium">{link.name}</a>
-                            ))}
-                        </nav>
-                        
-                        <button onClick={toggleLanguage} className="ml-8 hidden md:block border-2 border-amber-500 text-amber-500 font-bold py-1 px-3 rounded-md hover:bg-amber-500 hover:text-gray-900 transition-colors duration-300">
-                            {language === 'en' ? 'አማ' : 'EN'}
-                        </button>
-
-                        <div className="md:hidden flex items-center">
-                             <button onClick={toggleLanguage} className="text-amber-500 font-bold py-1 px-3 rounded-md mr-2">
-                                {language === 'en' ? 'አማ' : 'EN'}
-                            </button>
-                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-300 hover:text-white focus:outline-none">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+   
+   <div className="flex flex-col">
+              <span className="text-xl font-black tracking-tighter leading-none">GEEZ</span>
+              <span className="text-[10px] tracking-[0.3em] font-bold text-yellow-500">DIGITALS</span>
             </div>
+          </a>
 
-            {isMenuOpen && (
-                <div className="md:hidden bg-[#0c0c0c]/95 backdrop-blur-sm">
-                    <nav className="flex flex-col items-center space-y-4 py-4">
-                         {navLinks.map((link) => (
-                            <a key={link.name} href={link.href} onClick={(e) => handleLinkClick(e, link.href)} className="text-gray-300 hover:text-white transition-colors duration-300 font-medium">{link.name}</a>
-                        ))}
-                    </nav>
-                </div>
-            )}
-        </header>
-    );
+          <nav className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <a 
+                key={link.href} 
+                href={link.href} 
+                className={`text-xs font-bold tracking-widest transition-all uppercase relative after:content-[''] after:absolute after:bottom-[-4px] after:left-0 after:h-[2px] after:bg-yellow-500 after:transition-all ${currentHash === link.href ? 'text-white after:w-full' : 'text-gray-400 hover:text-white after:w-0 hover:after:w-full'}`}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center space-x-4">
+             <a href="#contact" className="hidden md:block px-6 py-2.5 bg-white text-black text-xs font-black rounded-full hover:bg-yellow-500 transition-colors uppercase">
+              Let's Talk
+            </a>
+            
+            <button 
+              className="md:hidden text-white p-2 focus:outline-none"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Menu"
+            >
+              <div className="space-y-1.5 overflow-hidden">
+                <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+                <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${mobileMenuOpen ? 'opacity-0 translate-x-4' : ''}`}></span>
+                <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modern Integrated Mobile Dropdown */}
+      <div className={`md:hidden absolute left-4 right-4 transition-all duration-500 ease-in-out origin-top z-[101] ${mobileMenuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-10 pointer-events-none'}`}>
+        <div className="bg-black/95 backdrop-blur-2xl border border-white/10 rounded-b-[2.5rem] p-8 shadow-3xl mt-[-1rem] pt-12">
+          <div className="flex flex-col space-y-6">
+            {navLinks.map((link) => (
+              <a 
+                key={link.href} 
+                href={link.href} 
+                onClick={() => setMobileMenuOpen(false)}
+                className={`text-2xl font-black tracking-tighter transition-colors ${currentHash === link.href ? 'text-yellow-500' : 'text-white hover:text-yellow-500'}`}
+              >
+                {link.label.toUpperCase()}
+              </a>
+            ))}
+            <div className="pt-6 border-t border-white/5">
+              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="block w-full py-5 bg-yellow-500 text-black font-black text-center rounded-[2rem] text-lg uppercase tracking-widest shadow-xl">
+                Start Project
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Background overlay for mobile menu */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        ></div>
+      )}
+    </header>
+  );
 };
 
 export default Header;
